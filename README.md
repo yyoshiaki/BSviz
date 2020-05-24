@@ -41,6 +41,7 @@ conda create -n TregBSPCR_webapp python=3.7 anaconda
 conda activate TregBSPCR_webapp
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark
+conda install openblas
 conda list --export | grep -v "pyqt" > environment.linux.yaml
 ```
 
@@ -51,6 +52,7 @@ conda create -n TregBSPCR_webapp python=3.7 anaconda
 conda activate TregBSPCR_webapp
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark
+conda install openblas
 conda list --export | grep -v "pyqt" > environment.macos.yaml
 ```
 

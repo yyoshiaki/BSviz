@@ -196,6 +196,7 @@ numpy=1.17.5=py37h95a1406_0
 numpy-base=1.18.1=py37h2f8d375_1
 numpydoc=0.9.2=py_0
 olefile=0.46=py_0
+openblas=0.3.7=hd44dcd8_1
 openpyxl=3.0.3=py_0
 openssl=1.1.1g=h516909a_0
 packaging=20.4=pyh9f0ad1d_0
