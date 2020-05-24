@@ -2,8 +2,25 @@
 
 ## Setup
 
+### Linux
+
 ```
-conda create --name TregBSPCR_webapp --file environment.yaml
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
+conda create --name TregBSPCR_webapp --file environment.linux.yaml
+conda activate TregBSPCR_webapp
+```
+
+### Mac OS
+
+```
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
+conda create --name TregBSPCR_webapp --file environment.macos.yaml
 conda activate TregBSPCR_webapp
 ```
  
@@ -17,9 +34,26 @@ Access `http://127.0.0.1:5000/`
 
 ## Export enviromnent.yaml (Only for developers)
 
+### Linux
+
 ```
-conda list --export > environment.yaml
+conda create -n TregBSPCR_webapp python=3.7 anaconda
+pip install flask
+conda install -c https://conda.anaconda.org/biocore scikit-bio
+conda install -c bioconda bismark
+conda list --export > environment.linux.yaml
 ```
+
+### Mac OS
+
+```
+conda create -n TregBSPCR_webapp python=3.7 anaconda
+pip install flask
+conda install -c https://conda.anaconda.org/biocore scikit-bio
+conda install -c bioconda bismark
+conda list --export > environment.macos.yaml
+```
+
 
 ## Developpers
 
