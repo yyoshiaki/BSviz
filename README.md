@@ -38,20 +38,20 @@ Access `http://127.0.0.1:5000/`
 
 ```
 conda create -n TregBSPCR_webapp python=3.7 anaconda
-pip install flask
+conda activate TregBSPCR_webapp
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark
-conda list --export > environment.linux.yaml
+conda list --export | grep -v "pyqt" > environment.linux.yaml
 ```
 
 ### Mac OS
 
 ```
 conda create -n TregBSPCR_webapp python=3.7 anaconda
-pip install flask
+conda activate TregBSPCR_webapp
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark
-conda list --export > environment.macos.yaml
+conda list --export | grep -v "pyqt" > environment.macos.yaml
 ```
 
 
