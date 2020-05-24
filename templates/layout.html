@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello</title>
+  <!-- <link rel="stylesheet" href="/static/spectre.min.css">
+  <link rel="stylesheet" href="/static/spectre-exp.min.css">
+  <link rel="stylesheet" href="/static/spectre-icons.min.css">	 -->
+  <link rel="stylesheet" href="../static/spectre.min.css">
+  <link rel="stylesheet" href="../static/spectre-exp.min.css">
+  <link rel="stylesheet" href="../static/spectre-icons.min.css">	
+  <style>
+      /* Make the navbar taller, and high contrast. */
+      .navbar { height: 4rem; background-color: #222222; padding: .5em 0 1em; }
+      .navbar-primary .navbar-brand { 
+          color: #fff; 
+          font-size: 2rem; 
+          font-weight: bold; 
+          padding-left: 2rem;
+      }
+      .btn.btn-link { color: lightgray; background-color: #222222; font-size: 1em;}
+      /* Make the button link color lighter on the nav bar */		
+      .btn.btn-link.selected { color: white; background-color: #222222; font-size: 1em;}
+      
+      /* Add padding to the right side of navbar. */
+      .navbar-section { padding-right: 1.5rem;}
+      .container {padding-left: 2em}
+  </style>
+</head>
+<body>
+	<header class="navbar">
+		<!-- Logo on the left -->
+		<div class="navbar-primary">	
+			<a href="./" class="navbar-brand mr-10">Treg quaintifier using BS-PCR</a>
+			<a href="./" class="btn btn-link selected">Home</a>
+			<a href="{{ url_for('about') }}" class="btn btn-link">About</a> 
+			<!-- <a href="#" class="btn btn-link">Contact</a>  -->
+		</div>
+    </header><!-- .navbar -->
+
+  <div class="container">
+    {% block content %}
+    <!-- content -->
+    {% endblock %}
+  </div>
+</body>
+</html>
