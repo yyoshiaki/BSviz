@@ -1,7 +1,5 @@
 # TregBSPCR_webapp
 
-Yoshiaki Yasumizu, 
-
 ## Setup
 
 ```
@@ -22,3 +20,7 @@ Access `http://127.0.0.1:5000/`
 ```
 conda list --export > environment.yaml
 ```
+
+## Developpers
+
+Yoshiaki Yasumizu, Yasunari Matsumoto
