@@ -35,7 +35,9 @@ def output():
     Z = np.sin(R)
 
     # Plot the surface.
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.viridis,
+    import random
+    cmap = random.choice(['viridis', 'cividis', 'magma', 'jet'])
+    surf = ax.plot_surface(X, Y, Z, cmap=cmap,
                         linewidth=0, antialiased=False)
 
     # Customize the z axis.
@@ -52,6 +54,9 @@ def output():
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
 
     figs.append(data)
+
+    # import time
+    # time.sleep(5)
 
     return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result')
 

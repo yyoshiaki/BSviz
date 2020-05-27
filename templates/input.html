@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+  <div id="content">
   <h1>Input sequences</h1>
 
   <form  action="/" method="POST" role="form">
@@ -20,10 +21,7 @@
         <label class="form-radio form-inline">
         <input type="radio" name="species" value="Mouse"><i class="form-icon"></i> Mouse
         </label>
-    </div>
 
-    <!-- form input control -->
-    <div class="form-group">
         <div class="column col-4 col-xs-12">
         <label class="form-label" for="enz1">Restrection enzyme 1</label>
         <input class="form-input" type="text" id="enz1" name="enz1" placeholder="Restrection enzyme 1 (ex. CTCGAG)">
@@ -31,18 +29,22 @@
         <label class="form-label" for="enz2">Restrection enzyme 2</label>
         <input class="form-input" type="text" id="enz2" name="enz2" placeholder="Restrection enzyme 2 (ex. CTCGAG)">
         </div>
-    </div>
 
-    <!-- form textarea control -->
-    <div class="form-group">
         <div class="column col-8 col-xs-12">
         <label class="form-label" for="fasta">Fasta</label>
         <textarea class="form-input" id="fasta" name="fasta" placeholder="Fasta" rows="6"></textarea>
         </div>
     </div>
 
-    <button type="submit" class="btn">Submit</button>
+    <button type="submit" class="btn" onclick="$('#loading').show(); $('#content').hide();">Submit</button>
     <!-- <button class="btn btn-primary">primary button</button>
     <button class="btn btn-link">link button</button> -->
   </form>
+  </div>
+
+  <div id="loading" style="display:none;">
+    <br><br><div class="loading loading-lg"></div>
+    <div class="p-centered"><h2>Wait a minute!</h2></div>
+  </div>
+
 {% endblock %}
