@@ -39,8 +39,23 @@
     <button type="submit" class="btn" onclick="$('#loading').show(); $('#content').hide();">Submit</button>
     <!-- <button class="btn btn-primary">primary button</button>
     <button class="btn btn-link">link button</button> -->
+    <a href="#" id="Reset">&nbsp;&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;</a>
+    <a href="#" id="setExample">&nbsp;&nbsp;Example&nbsp;&nbsp;</a>
   </form>
   </div>
+
+  <script> 
+    $("#Reset").click(function(event) { 
+        $('#enz1').val(""); 
+        $('#enz2').val("");
+        $('#fasta').val("");  
+    }); 
+    $("#setExample").click(function(event) { 
+        $('#enz1').val("CTCGAG"); 
+        $('#enz2').val("CTCGAG");
+        $('#fasta').val(">1\nCTCGAG");  
+    }); 
+</script> 
 
   <div id="loading" style="display:none;">
     <br><br><div class="loading loading-lg"></div>
