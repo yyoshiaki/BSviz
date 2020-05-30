@@ -1,14 +1,24 @@
 import base64
 from io import BytesIO
+import os
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response, jsonify
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
+from utils import utils
+
 
 app = Flask(__name__)
+
+# limit upload file size : 10MB
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+
+# ex) set UPLOAD_DIR_PATH=C:/tmp/flaskUploadDir
+# UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
+UPLOAD_DIR = "./tmp"
 
 @app.route('/', methods=['GET'])
 def input():
@@ -20,6 +30,17 @@ def output():
     enz1 = request.form['enz1']
     enz2 = request.form['enz2']
     fasta = request.form['fasta']
+
+    if fasta == "":
+        res = utils.process_zip(request.files, UPLOAD_DIR)
+        if res[0] == 0:
+            return res[1]
+        else:
+            fasta = res[1]
+    
+    else:
+        utils.check_fasta(fasta)
+    
 
     figs = []
 
@@ -63,6 +84,11 @@ def output():
 @app.route('/about')
 def about():
     return render_template("about.html")
+
+
+# @app.route('/test')
+# def test():
+#     return make_response(jsonify({'result':'filename must not empty.'}))
 
 if __name__ == '__main__':
     app.run(debug=True)

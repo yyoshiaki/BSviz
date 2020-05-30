@@ -3,7 +3,7 @@
   <div id="content">
   <h1>Input sequences</h1>
 
-  <form  action="/" method="POST" role="form">
+  <form  action="/" method="POST" role="form" enctype="multipart/form-data">
     <!--   
     <div class="form-group">
         <label class="form-checkbox form-inline">
@@ -34,6 +34,9 @@
         <label class="form-label" for="fasta">Fasta</label>
         <textarea class="form-input" id="fasta" name="fasta" placeholder="Fasta" rows="6"></textarea>
         </div>
+        <br>
+        .seq files (ziped directory)
+        <input type="file" name="uploadFile">
     </div>
 
     <button type="submit" class="btn" onclick="$('#loading').show(); $('#content').hide();">Submit</button>
