@@ -19,6 +19,7 @@ app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 # ex) set UPLOAD_DIR_PATH=C:/tmp/flaskUploadDir
 # UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
 UPLOAD_DIR = "./tmp"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.route('/', methods=['GET'])
 def input():

@@ -35,8 +35,8 @@
         <textarea class="form-input" id="fasta" name="fasta" placeholder="Fasta" rows="6"></textarea>
         </div>
         <br>
-        .seq files (ziped directory)
-        <input type="file" name="uploadFile">
+        .seq files (ziped directory, <10 MB)
+        <input type="file" id="uploadFile" name="uploadFile">
     </div>
 
     <button type="submit" class="btn" onclick="$('#loading').show(); $('#content').hide();">Submit</button>
@@ -49,14 +49,36 @@
 
   <script> 
     $("#Reset").click(function(event) { 
+        $('input[name=species]').val(["Human"]); 
         $('#enz1').val(""); 
         $('#enz2').val("");
         $('#fasta').val("");  
+        $('#uploadFile').val("");  
     }); 
     $("#setExample").click(function(event) { 
+        $('input[name=species]').val(["Human"]);
         $('#enz1').val("CTCGAG"); 
         $('#enz2').val("CTCGAG");
-        $('#fasta').val(">1\nCTCGAG");  
+        $('#fasta').val('>Goto_2_G02_20.seq\n'
+          +'NNNNNNNNNNNNNNNNNNNNNNNNNNTATAGAATACGCGGNCGNNGCTTGNATGCCTGNAGGTC'
+          +'GACTCTAGAGCGGATCCACAATTATCTAAACCCTATTATCACAACCCCCGACTTACCCAAATTTT'
+          +'TCCGCCATTAACGTCATAACGACCGAATACGCCGAACTTCATCGACACCACGAAAAAAAAAAAAAA'
+          +'AACAAATACCCCACCCCACAAATTTCGTTCCGAAAACTAACTACCCTATCCTACAACAAACTTAAC'
+          +'CCAAAGATCTGGCCTCGAGATCCCGGGTACCGAGCTCGAATTCTGCGGCCGCGCCCTATAGTGAGTC'
+          +'GTATTACACTAGCTCACTGGCCGTCGTTTTACAACGTCGTGACTGGGAAAACCCTGGCGTTACCCAACTTNN\n'
+          +'>Goto_2_B02_05.seq\n'
+          +'NNNNNNNNNNNNNNNNNNNTNNNNNNACGCGGGNNNNNGNNTGNAATGCNTNNNNGGTCGACTCTAGAGCGGGATCCACAATTATC'
+          +'TAAACCCTATNANCNNAACCCCCGACTTNNNNNNNTTTTTCCGCCATTAACATCATAACGACCGAATACGCCGAACTTCATCGACACCAC'
+          +'GAAAAAAAAAAAAAAAACAAATACCCCACCCCACAAATTTCGTTCCGAAANNNANNTACCCTATCCTACAACAAACTTAACCNNNNGATCT'
+          +'GGCCTCGAGATCCCGGGTACCGAGCTCGAATTCTGCGGCCGNNCCNNNANANNNNNNCNNATTACACTAGCTCACTGGNCGNCGTTTTACAAC'
+          +'GNCGNGNCTGGNAAAACCCTGNNNTTACCCNNCNTAATCNNN\n'
+          +'>Goto_2_D02_11.seq\n'
+          +'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNGNCGNANGNTTGNATGCCTGNNGNNNGACTCTAGAGCGGATCCACAATTATCTNAACCCTAT'
+          +'TATCACAACCCCCGACTTACCCAAATTTTTCNNNNNNTAANNNCATAACGNCNNANTACGCCGAACTTCATCGACACCACNAAAAAAAAAAAAAAA'
+          +'ACAAATACCCCACCCCACAAATTTCGTTCCGAAAACTAACTACCCTATCCNACAACAAACTTAACCCNAAGATCTGGCCTCGAGATCCCGGGTACCG'
+          +'AGCTCGAATTCTGCGGCCGNNNNNNANNNNNAGTCGTATTACACTAGCTCACTGGCCGNCGNNNNANNACGTCGNGNCNNGGGAAAACCCTGNN'
+          +'GTTACCCAACTTTAANCNNNNN');  
+        $('#uploadFile').val(""); 
     }); 
 </script> 
 
