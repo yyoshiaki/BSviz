@@ -51,8 +51,19 @@ def process_zip(file, UPLOAD_DIR):
 
     return [1, fasta]
 
-def check_fasta(fasta):
-    print("Opps")
+def trim_fasta(fasta, res1, res2):
+    trimmed_fasta = []
+    for i, x in enumerate(fasta.split()):
+        if i%2 == 0:
+            trimmed_fasta.append(x)
+        else:
+            trimmed = trim(x, res1, res2)
+            if trimmed == "":
+                trimmed_fasta.pop()
+            else:
+                trimmed_fasta.append(trimmed)
+
+    return '\n'.join(trimmed_fasta)
 
 def convert_seq2fasta(dir_seqs, f_fa):
     list_files = os.listdir(dir_seqs)
@@ -91,3 +102,33 @@ def convert_seq2fasta(dir_seqs, f_fa):
         f.write(out)
 
     return out
+
+def trim(seq, res1, res2):
+    if res1 != res2:
+        seq = DNA(seq)
+        alignment1, score1, start_end_positions1 = local_pairwise_align_ssw(seq, DNA(res1))
+        alignment2, score2, start_end_positions2 = local_pairwise_align_ssw(seq, DNA(res2))
+
+        # trim only when both restrection enzyme was recognized.
+        if (score1 >=10) & (score2 >=10):
+            L = (list(start_end_positions1[0]) + list(start_end_positions2[0]))
+            L.sort()
+            s = L[1]
+            e = L[2]
+            return str(seq[s:e])
+        else:
+            print(score1, score2)
+            return ""
+    else:
+        seq = DNA(seq)
+        alignment1, score1, start_end_positions1 = local_pairwise_align_ssw(seq, DNA(res1))
+        seq1 = seq[:start_end_positions1[0][0]]
+        seq2 = seq[start_end_positions1[0][1]:]
+
+        alignment21, score21, start_end_positions21 = local_pairwise_align_ssw(seq1, DNA(res2))
+        alignment22, score22, start_end_positions22 = local_pairwise_align_ssw(seq2, DNA(res2))
+
+        if score21 >= score22:
+            return str(seq1[start_end_positions21[0][1]:])
+        else:
+            return str(seq2[:start_end_positions22[0][0]])

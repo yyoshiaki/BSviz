@@ -33,15 +33,21 @@ def output():
     fasta = request.form['fasta']
 
     if fasta == "":
-        res = utils.process_zip(request.files, UPLOAD_DIR)
-        if res[0] == 0:
-            return res[1]
+        result = utils.process_zip(request.files, UPLOAD_DIR)
+        if red[0] == 0:
+            return result[1]
         else:
-            fasta = res[1]
+            fasta = result[1]
     
+    if (enz1 != "") & (enz2 != ""):
+        fasta = utils.trim_fasta(fasta, enz1, enz2)
+    elif enz1 == enz2 == "":
+        fasta = fasta
     else:
-        utils.check_fasta(fasta)
+        ender_template('error.html', error='invalid input for restriction enzyme.')
     
+    if fasta == "":
+        ender_template('error.html', error='No valid sequences.')
 
     figs = []
 
