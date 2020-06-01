@@ -1,12 +1,8 @@
-import base64
-from io import BytesIO
 import os
+import shutil
 
 from flask import Flask, render_template, request, make_response, jsonify
-import numpy as np
-from matplotlib.figure import Figure
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import matplotlib.pyplot as plt
 
 from utils import utils
 
@@ -16,10 +12,22 @@ app = Flask(__name__)
 # limit upload file size : 10MB
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 
+# Load config
+app.config.from_pyfile('config.ini')
+
 # ex) set UPLOAD_DIR_PATH=C:/tmp/flaskUploadDir
 # UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
-UPLOAD_DIR = "./tmp"
+# UPLOAD_DIR = "./tmp"
+UPLOAD_DIR = app.config['UPLOAD_DIR']
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+p = app.config["PROCESS"]
+threshold_rate_undetected = app.config['THREASHOLD_RATE_UNDETECTED']
+
+print(app.config['BISMARK_INDEX_HUMAN'])
+print(app.config['BISMARK_INDEX_MOUSE'])
+
+plt.rcParams["font.size"] = app.config['PLOT_FONT_SIZE']
 
 @app.route('/', methods=['GET'])
 def input():
@@ -32,9 +40,11 @@ def output():
     enz2 = request.form['enz2']
     fasta = request.form['fasta']
 
+    dir_tmp = utils.make_tmpdir(UPLOAD_DIR)
+
     if fasta == "":
-        result = utils.process_zip(request.files, UPLOAD_DIR)
-        if red[0] == 0:
+        result = utils.process_zip(request.files, dir_tmp)
+        if result[0] == 0:
             return result[1]
         else:
             fasta = result[1]
@@ -44,47 +54,31 @@ def output():
     elif enz1 == enz2 == "":
         fasta = fasta
     else:
-        ender_template('error.html', error='invalid input for restriction enzyme.')
+        render_template('error.html', error='invalid input for restriction enzyme.')
     
     if fasta == "":
-        ender_template('error.html', error='No valid sequences.')
+        render_template('error.html', error='No valid sequences.')
 
+    if species == "Human":
+        f_bismark_index = app.config['BISMARK_INDEX_HUMAN']
+    elif species == "Mouse":
+        f_bismark_index = app.config['BISMARK_INDEX_MOUSE']
+    else:
+        render_template('error.html', error='cannot recognize the spiece')
+
+    f_fa = dir_tmp + '/' + app.config['INPUT_FASTA']
+    with open(f_fa, 'w') as f:
+        f.write(fasta)
+    f_bismark = utils.run_bismark(p, dir_tmp, f_fa, species, f_bismark_index)
+
+    fig = utils.plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, 'output.png')
     figs = []
-
-    # Generate the figure **without using pyplot**.
-    fig = Figure()
-    ax = fig.gca(projection='3d')
-
-    # Make data.
-    X = np.arange(-5, 5, 0.25)
-    Y = np.arange(-5, 5, 0.25)
-    X, Y = np.meshgrid(X, Y)
-    R = np.sqrt(X**2 + Y**2)
-    Z = np.sin(R)
-
-    # Plot the surface.
-    import random
-    cmap = random.choice(['viridis', 'cividis', 'magma', 'jet'])
-    surf = ax.plot_surface(X, Y, Z, cmap=cmap,
-                        linewidth=0, antialiased=False)
-
-    # Customize the z axis.
-    ax.set_zlim(-1.01, 1.01)
-    ax.zaxis.set_major_locator(LinearLocator(10))
-    ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-
-    # Add a color bar which maps values to colors.
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    # Save it to a temporary buffer.
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-    # Embed the result in the html output.
-    data = base64.b64encode(buf.getbuffer()).decode("ascii")
-
-    figs.append(data)
+    figs.append('/'+dir_tmp+'/output.png')
 
     # import time
     # time.sleep(5)
+
+    # shutil.rmtree(dir_tmp)
 
     return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result')
 
@@ -93,9 +87,10 @@ def about():
     return render_template("about.html")
 
 
-# @app.route('/test')
-# def test():
-#     return make_response(jsonify({'result':'filename must not empty.'}))
+@app.route('/test')
+def test():
+    figs=["static/tmp/job_20200601_162507/output.png"]
+    return render_template("test.html", figs=figs)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -56,6 +56,19 @@ conda install openblas
 conda list --export | grep -v "pyqt" > environment.macos.yaml
 ```
 
+### build bismark index
+
+```
+mkdir -p ~/reference/bismark/Gencode_v34/fasta
+cd ~/reference/bismark/Gencode_v34/fasta
+wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_34/GRCh38.p13.genome.fa.gz
+bismark_genome_preparation --parallel 40 ~/reference/bismark/Gencode_v34/fasta
+
+mkdir -p ~/reference/bismark/Gencode_M25/fasta
+cd ~/reference/bismark/Gencode_M25/fasta
+wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/GRCm38.p6.genome.fa.gz
+bismark_genome_preparation --parallel 40 ~/reference/bismark/Gencode_M25/fasta
+```
 
 ## Developpers
 

@@ -1,17 +1,26 @@
+import base64
+from io import BytesIO
 from datetime import datetime
 import os
 import shutil
 import zipfile
+import subprocess
 
 from flask import Flask, render_template, request, make_response, jsonify
 import werkzeug
-
+import pandas as pd
+import matplotlib.pyplot as plt
 from skbio import DNA
 from skbio.alignment import local_pairwise_align_ssw
 
-def process_zip(file, UPLOAD_DIR):
-    print("hi")
 
+def make_tmpdir(UPLOAD_DIR):
+    dir_tmp = UPLOAD_DIR + '/job_' +datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.makedirs(dir_tmp, exist_ok=True)
+    return dir_tmp
+
+
+def process_zip(file, dir_tmp):
     if 'uploadFile' not in file:
         # return [0, make_response(jsonify({'result':'uploadFile or Fasta is required.'}))]
         return [0, render_template('error.html', error='uploadFile or Fasta is required.')]
@@ -24,14 +33,13 @@ def process_zip(file, UPLOAD_DIR):
         # return [0, make_response(jsonify({'result':'filename must not empty.'}))]
         return [0, render_template('error.html', error='filename must not empty.')]
    
-    saveFileName = datetime.now().strftime("%Y%m%d_%H%M%S_") \
-         + werkzeug.utils.secure_filename(fileName)
+    saveFileName = werkzeug.utils.secure_filename(fileName)
 
     if not saveFileName.endswith(".zip"):
         # return [0, make_response(jsonify({'result':'uploadFile must be a zip file.'}))]
         return [0, render_template('error.html', error='uploadFile must be a zip file.')]
     print("file", saveFileName)
-    saveFilePath = os.path.join(UPLOAD_DIR, saveFileName)
+    saveFilePath = os.path.join(dir_tmp, saveFileName)
     file.save(saveFilePath)
 
     dir_extracted = saveFilePath.replace('.zip', '')
@@ -41,15 +49,14 @@ def process_zip(file, UPLOAD_DIR):
 
     dir_extracted = dir_extracted + '/' + fileName.replace(".zip", "")
     f_fa = dir_extracted + "/" + "tmp.fa"
-    list_sample = os.listdir(dir_extracted)
+    # list_sample = os.listdir(dir_extracted)
     # print(list_sample)
 
     fasta = convert_seq2fasta(dir_extracted, f_fa)
-
     os.remove(saveFilePath)
-    shutil.rmtree(dir_extracted)
 
     return [1, fasta]
+
 
 def trim_fasta(fasta, res1, res2):
     trimmed_fasta = []
@@ -64,6 +71,7 @@ def trim_fasta(fasta, res1, res2):
                 trimmed_fasta.append(trimmed)
 
     return '\n'.join(trimmed_fasta)
+
 
 def convert_seq2fasta(dir_seqs, f_fa):
     list_files = os.listdir(dir_seqs)
@@ -98,10 +106,11 @@ def convert_seq2fasta(dir_seqs, f_fa):
     #         out += '\n'
         os.remove(f)
 
-    with open(f_fa, 'w') as f:
-        f.write(out)
+    # with open(f_fa, 'w') as f:
+    #     f.write(out)
 
     return out
+
 
 def trim(seq, res1, res2):
     if res1 != res2:
@@ -132,3 +141,78 @@ def trim(seq, res1, res2):
             return str(seq1[start_end_positions21[0][1]:])
         else:
             return str(seq2[:start_end_positions22[0][0]])
+
+
+def run_bismark(p, dir_tmp, f_fa, species, f_bismark_index):
+    cmd = "bismark --parallel {p} --output_dir {o} --temp_dir {o} --non_directional --score_min L,0,-1 -f " +\
+            "--genome  {f_bismark_index} {f_fa}"
+    cmd = cmd.format(p=p, o=dir_tmp, f_bismark_index=f_bismark_index, f_fa=f_fa)
+    print(cmd)
+    subprocess.run(cmd, shell=True)
+
+    cmd = 'bismark_methylation_extractor --output {o} --gzip --bedGraph --comprehensive {}_bismark_bt2.bam'
+    cmd = cmd.format(f_fa, o=dir_tmp)
+    print(cmd)
+    subprocess.run(cmd, shell=True)
+
+    return dir_tmp + '/CpG_context_input.fasta_bismark_bt2.txt.gz'
+
+
+def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out):
+    df_bismark = pd.read_csv(f_bismark, sep='\t', skiprows=[0], header=None)
+    df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
+    df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
+    df_bismark.columns=df_bismark.columns.astype(str)
+
+    # methylated CpG : 1, unmethylated CpG : 0
+    df_bismark = df_bismark.replace('Z', 1).replace('z', 0)
+
+    # remove positions with many undetected reads.
+    df_bismark = df_bismark.loc[:,df_bismark.isna().sum() < (df_bismark.shape[0]) * threshold_rate_undetected]
+
+    # sort reads by methylation
+    sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=False).index
+    df_bismark = df_bismark.loc[sorted_ind]
+
+    df=df_bismark.melt(value_name='methylation')
+    list_index=list(sorted_ind)
+    reads_num = list_index*(df_bismark.shape[1])
+    df["read"]=reads_num
+
+    df_0 = df[df.methylation==0.0]
+    df_1 = df[df.methylation==1.0]
+    df_N = df[df.isnull().any(axis=1)]
+
+    data_2 = {
+        "pos":list(df["pos"]), 
+        "read":list(reversed(reads_num)),
+        "methylation":[0]*len(df.index)
+    }
+
+    df_mat_2 = pd.DataFrame(data_2)
+
+    fig, ax = plt.subplots(figsize=(df_bismark.shape[1]/2, df_bismark.shape[0]/2 + .2))
+    plt.xticks(rotation=90)
+
+    ax.scatter(x="pos", y="read", data=df_mat_2, marker="", label=None)
+    ax.scatter(x="pos", y="read", data=df_1, s=500, linewidths='2', 
+            c='#000000', edgecolors='black', label='Methylated')
+    ax.scatter(x="pos", y="read", data=df_0, s=500, linewidths='2', 
+            c='#ffffff', edgecolors='black', label='Unmethylated')
+    ax.scatter(x="pos", y="read", data=df_N, c='#0000ff', marker=".", label='Undetected')
+
+    ax.legend(bbox_to_anchor=(1.1, 0.5), frameon=False, labelspacing=2)
+    ax.spines["right"].set_color("none") 
+    ax.spines["left"].set_color("none")  
+    ax.spines["top"].set_color("none")   
+    ax.spines["bottom"].set_color("none")
+
+    ax.set_xlabel('position')
+    ax.set_ylim(-0.5,df_bismark.shape[0])
+
+    buf = BytesIO()
+    # fig.savefig(buf, format="png", bbox_inches='tight', dpi=350)
+    # data = base64.b64encode(buf.getbuffer()).decode("ascii")
+    fig.savefig(dir_tmp+'/'+f_out, format="png", bbox_inches='tight', dpi=350)
+    # data = base64.b64encode(buf.getbuffer()).decode("ascii")
+    return dir_tmp+'/'+f_out
