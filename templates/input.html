@@ -22,6 +22,18 @@
         <input type="radio" name="species" value="Mouse"><i class="form-icon"></i> Mouse
         </label>
 
+        <br>
+
+        <label class="form-radio form-inline">
+        <input type="radio" name="gender" checked="" value="Male"><i class="form-icon"></i> Male
+        </label>
+        <label class="form-radio form-inline">
+        <input type="radio" name="gender" value="Female"><i class="form-icon"></i> Female
+        </label>
+        <label class="form-radio form-inline">
+        <input type="radio" name="gender" value="Unknown"><i class="form-icon"></i> Unknown
+        </label>
+        
         <div class="column col-4 col-xs-12">
         <label class="form-label" for="enz1">Restrection enzyme 1</label>
         <input class="form-input" type="text" id="enz1" name="enz1" placeholder="Restrection enzyme 1 (ex. CTCGAG)">
@@ -35,8 +47,8 @@
         <textarea class="form-input" id="fasta" name="fasta" placeholder="Fasta" rows="6"></textarea>
         </div>
         <br>
-        .seq files (ziped directory, <10 MB)
-        <input type="file" id="uploadFile" name="uploadFile">
+        .seq files (ziped directory or multiple .seq files, <10 MB) or fasta file.
+        <input type="file" id="uploadFile" name="uploadFile" accept=".seq,.zip,.fa,.fasta" multiple>
     </div>
 
     <button type="submit" class="btn" onclick="$('#loading').show(); $('#content').hide();">Submit</button>
