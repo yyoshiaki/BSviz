@@ -22,17 +22,28 @@ def make_tmpdir(UPLOAD_DIR):
 
 def process_files(files, dir_tmp):
     file_types = [x.filename.split('.')[-1] for x in files]
+    print(file_types)
 
     fasta = ''
-    if set(file_types) == {'.zip'}:
+    # file = files[0]
+    # print(str(file.read()))
+
+    if set(file_types) == {'zip'}:
         for file in files:
-            fasta += process_file(file, dir_tmp)[1]
+            fasta += process_zip(file, dir_tmp)[1]
+    elif (set(file_types) == {'fa'}) or (set(file_types) == {'.fasta'}):
+        for file in files:
+            fasta += file.read().decode('utf-8')
+    elif set(file_types) == {'seq'}:
+        for file in files:
+            fasta += '>' + file.filename + '\n'
+            fasta += file.read().decode('utf-8')
     
-    if fasta:
+    if fasta != "":
         return [1, fasta]
     else:
         return [0, fasta]
-        
+
 def process_zip(file, dir_tmp):
     # if 'uploadFile' not in file:
     #     # return [0, make_response(jsonify({'result':'uploadFile or Fasta is required.'}))]

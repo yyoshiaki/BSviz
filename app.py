@@ -47,10 +47,12 @@ def output():
         print(files)
         result = utils.process_files(files, dir_tmp)
         if result[0] == 0:
-            return result[1]
+            fasta = result[1]
         else:
             fasta = result[1]
     
+    print(fasta)
+
     if (enz1 != "") & (enz2 != ""):
         fasta = utils.trim_fasta(fasta, enz1, enz2)
     elif enz1 == enz2 == "":
