@@ -20,14 +20,23 @@ def make_tmpdir(UPLOAD_DIR):
     return dir_tmp
 
 
+def process_files(files, dir_tmp):
+    file_types = [x.filename.split('.')[-1] for x in files]
+
+    fasta = ''
+    if set(file_types) == {'.zip'}:
+        for file in files:
+            fasta += process_file(file, dir_tmp)[1]
+    
+    if fasta:
+        return [1, fasta]
+    else:
+        return [0, fasta]
+        
 def process_zip(file, dir_tmp):
-    if 'uploadFile' not in file:
-        # return [0, make_response(jsonify({'result':'uploadFile or Fasta is required.'}))]
-        return [0, render_template('error.html', error='uploadFile or Fasta is required.')]
-
-    file = file['uploadFile']
-
-    print(file)
+    # if 'uploadFile' not in file:
+    #     # return [0, make_response(jsonify({'result':'uploadFile or Fasta is required.'}))]
+    #     return [0, render_template('error.html', error='uploadFile or Fasta is required.')]
     fileName = file.filename
     if '' == fileName:
         # return [0, make_response(jsonify({'result':'filename must not empty.'}))]

@@ -43,7 +43,9 @@ def output():
     dir_tmp = utils.make_tmpdir(UPLOAD_DIR)
 
     if fasta == "":
-        result = utils.process_zip(request.files, dir_tmp)
+        files = request.files.getlist('uploadFile')
+        print(files)
+        result = utils.process_files(files, dir_tmp)
         if result[0] == 0:
             return result[1]
         else:
