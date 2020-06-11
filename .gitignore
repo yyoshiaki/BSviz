@@ -2,4 +2,4 @@
 __pycache__
 utlis/__pycache__
 static/tmp
-.vscode
+.vscode/*

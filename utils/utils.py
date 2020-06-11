@@ -31,7 +31,7 @@ def process_files(files, dir_tmp):
     if set(file_types) == {'zip'}:
         for file in files:
             fasta += process_zip(file, dir_tmp)[1]
-    elif (set(file_types) == {'fa'}) or (set(file_types) == {'.fasta'}):
+    elif (set(file_types) == {'fa'}) or (set(file_types) == {'fasta'}):
         for file in files:
             fasta += file.read().decode('utf-8')
     elif set(file_types) == {'seq'}:
