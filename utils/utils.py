@@ -178,7 +178,7 @@ def run_bismark(p, dir_tmp, f_fa, species, f_bismark_index):
     return dir_tmp + '/CpG_context_input.fasta_bismark_bt2.txt.gz'
 
 
-def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out):
+def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     df_bismark = pd.read_csv(f_bismark, sep='\t', skiprows=[0], header=None)
     df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
     df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
@@ -193,6 +193,8 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out):
     # sort reads by methylation
     sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=False).index
     df_bismark = df_bismark.loc[sorted_ind]
+
+    gene = query_gene(df_bismark, bt_gff3)
 
     df=df_bismark.melt(value_name='methylation')
     list_index=list(sorted_ind)
@@ -229,6 +231,8 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out):
 
     ax.set_xlabel('position')
     ax.set_ylim(-0.5,df_bismark.shape[0])
+    ax.set_title(gene)
+    
 
     buf = BytesIO()
     # fig.savefig(buf, format="png", bbox_inches='tight', dpi=350)
@@ -236,3 +240,32 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out):
     fig.savefig(dir_tmp+'/'+f_out, format="png", bbox_inches='tight', dpi=350)
     # data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return dir_tmp+'/'+f_out
+
+
+def query_gene(df_bismark, bt_gff3):
+    # f_bismark = "data/200522_BSseq_PCR/CpG_context_sample_3.fa_bismark_bt2.txt.gz"
+    # f_CpG = "CpG_context_sample_2.fa_bismark_bt2.txt"
+    # f_bismark = "data/CpG_context_input.fasta_bismark_bt2.txt.gz"
+
+    # df_bismark = pd.read_csv(f_CpG, sep='\t', skiprows=[0], header=None)
+    # df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
+
+    chr_num = list(set(list(df_bismark["chr"])))
+
+    df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
+
+    gene_pos = list(df_bismark.columns)
+    bed_ori = "{}\t{}\t{}".format(chr_num[0], gene_pos[0], gene_pos[-1])
+
+    bed = BedTool(bed_ori, from_string=True)
+
+
+    query = bt_gff3.intersect(bed)
+    list_gene = []
+    for data in query:
+        if data[2]=="gene":
+            attr = list(data.attrs.items())
+            gene_list.append(attr[3][1])
+            print("{} {} {}:{}".format(data[0], data[3], data[4], attr[3][1]))
+    
+    return '; '.join(list_gene)

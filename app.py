@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from utils import utils
 
+from pybedtools import BedTool
 
 app = Flask(__name__)
 
@@ -26,6 +27,10 @@ threshold_rate_undetected = app.config['THREASHOLD_RATE_UNDETECTED']
 
 print(app.config['BISMARK_INDEX_HUMAN'])
 print(app.config['BISMARK_INDEX_MOUSE'])
+
+bt_genes_human = BedTool(app.config['GFF3_HUMAN'])
+bt_genes_mouse = BedTool(app.config['GFF3_MOUSE'])
+
 
 plt.rcParams["font.size"] = app.config['PLOT_FONT_SIZE']
 
@@ -65,8 +70,10 @@ def output():
 
     if species == "Human":
         f_bismark_index = app.config['BISMARK_INDEX_HUMAN']
+        bt_gff3 = bt_genes_human
     elif species == "Mouse":
         f_bismark_index = app.config['BISMARK_INDEX_MOUSE']
+        bt_gff3 = bt_genes_mouse
     else:
         render_template('error.html', error='cannot recognize the spiece')
 
@@ -75,7 +82,7 @@ def output():
         f.write(fasta)
     f_bismark = utils.run_bismark(p, dir_tmp, f_fa, species, f_bismark_index)
 
-    fig = utils.plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, 'output.png')
+    fig = utils.plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, 'output.png', bt_gff3)
     figs = []
     figs.append('/'+dir_tmp+'/output.png')
 
