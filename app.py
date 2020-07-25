@@ -49,6 +49,8 @@ def output():
     enz1 = request.form['enz1'].upper()
     enz2 = request.form['enz2'].upper()
     fasta = request.form['fasta']
+    gender = request.form['gender'] # Male, Female, Unknown
+    classification_dataset = request.form['classification'] # unselected, tregtconv, moss, no 
 
     dir_tmp = utils.make_tmpdir(UPLOAD_DIR)
 
@@ -96,7 +98,7 @@ def output():
 
     # shutil.rmtree(dir_tmp)
 
-    return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result')
+    return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result', classification_dataset=classification_dataset, gender=gender)
 
 @app.route('/about')
 def about():
