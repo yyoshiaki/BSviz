@@ -12,6 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from skbio import DNA
 from skbio.alignment import local_pairwise_align_ssw
+from pybedtools import BedTool
 
 
 def make_tmpdir(UPLOAD_DIR):
@@ -164,15 +165,22 @@ def trim(seq, res1, res2):
 
 
 def run_bismark(p, dir_tmp, f_fa, species, f_bismark_index):
+    cmds =""
     cmd = "bismark --parallel {p} --output_dir {o} --temp_dir {o} --non_directional --score_min L,0,-1 -f " +\
             "--genome  {f_bismark_index} {f_fa}"
     cmd = cmd.format(p=p, o=dir_tmp, f_bismark_index=f_bismark_index, f_fa=f_fa)
     print(cmd)
+    cmds += cmd + '\n'
     subprocess.run(cmd, shell=True)
 
     cmd = 'bismark_methylation_extractor --output {o} --gzip --bedGraph --comprehensive {}_bismark_bt2.bam'
     cmd = cmd.format(f_fa, o=dir_tmp)
     print(cmd)
+    cmds += cmd + '\n'
+
+    with open(dir_tmp + "bismark.cmd.txt", 'w') as f:
+        f.write(cmds)
+        
     subprocess.run(cmd, shell=True)
 
     return dir_tmp + '/CpG_context_input.fasta_bismark_bt2.txt.gz'
@@ -181,6 +189,9 @@ def run_bismark(p, dir_tmp, f_fa, species, f_bismark_index):
 def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     df_bismark = pd.read_csv(f_bismark, sep='\t', skiprows=[0], header=None)
     df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
+
+    gene = query_gene(df_bismark, bt_gff3)
+
     df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
     df_bismark.columns=df_bismark.columns.astype(str)
 
@@ -193,8 +204,6 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     # sort reads by methylation
     sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=False).index
     df_bismark = df_bismark.loc[sorted_ind]
-
-    gene = query_gene(df_bismark, bt_gff3)
 
     df=df_bismark.melt(value_name='methylation')
     list_index=list(sorted_ind)
@@ -234,7 +243,7 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     ax.set_title(gene)
     
 
-    buf = BytesIO()
+    # buf = BytesIO()
     # fig.savefig(buf, format="png", bbox_inches='tight', dpi=350)
     # data = base64.b64encode(buf.getbuffer()).decode("ascii")
     fig.savefig(dir_tmp+'/'+f_out, format="png", bbox_inches='tight', dpi=350)
@@ -250,7 +259,7 @@ def query_gene(df_bismark, bt_gff3):
     # df_bismark = pd.read_csv(f_CpG, sep='\t', skiprows=[0], header=None)
     # df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
 
-    chr_num = list(set(list(df_bismark["chr"])))
+    chr_num = list(df_bismark["chr"].unique())
 
     df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
 
@@ -265,7 +274,7 @@ def query_gene(df_bismark, bt_gff3):
     for data in query:
         if data[2]=="gene":
             attr = list(data.attrs.items())
-            gene_list.append(attr[3][1])
+            list_gene.append(attr[3][1])
             print("{} {} {}:{}".format(data[0], data[3], data[4], attr[3][1]))
     
     return '; '.join(list_gene)

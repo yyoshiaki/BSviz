@@ -40,7 +40,8 @@ Access `http://127.0.0.1:5000/`
 conda create -n TregBSPCR_webapp python=3.7 anaconda
 conda activate TregBSPCR_webapp
 conda install -c https://conda.anaconda.org/biocore scikit-bio
-conda install -c bioconda bismark
+conda install -c bioconda bismark pybedtools
+# pip install pybedtools
 conda install openblas
 conda list --export | grep -v "pyqt" > environment.linux.yaml
 ```
@@ -52,6 +53,7 @@ conda create -n TregBSPCR_webapp python=3.7 anaconda
 conda activate TregBSPCR_webapp
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark
+pip install pybedtools
 conda install openblas
 conda list --export | grep -v "pyqt" > environment.macos.yaml
 ```

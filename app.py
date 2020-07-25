@@ -1,5 +1,6 @@
 import os
 import shutil
+import pathlib
 
 from flask import Flask, render_template, request, make_response, jsonify
 import matplotlib.pyplot as plt
@@ -28,8 +29,12 @@ threshold_rate_undetected = app.config['THREASHOLD_RATE_UNDETECTED']
 print(app.config['BISMARK_INDEX_HUMAN'])
 print(app.config['BISMARK_INDEX_MOUSE'])
 
-bt_genes_human = BedTool(app.config['GFF3_HUMAN'])
-bt_genes_mouse = BedTool(app.config['GFF3_MOUSE'])
+# print(pathlib.Path(app.config['GFF3_HUMAN']).is_absolute())
+path_gff3_human = pathlib.Path(app.config['GFF3_HUMAN']) # .resolve()
+path_gff3_mouse = pathlib.Path(app.config['GFF3_MOUSE']) # .resolve()
+
+bt_genes_human = BedTool(path_gff3_human)
+bt_genes_mouse = BedTool(path_gff3_mouse)
 
 
 plt.rcParams["font.size"] = app.config['PLOT_FONT_SIZE']
@@ -41,8 +46,8 @@ def input():
 @app.route('/', methods=['POST'])
 def output():
     species = request.form["species"]
-    enz1 = request.form['enz1']
-    enz2 = request.form['enz2']
+    enz1 = request.form['enz1'].upper()
+    enz2 = request.form['enz2'].upper()
     fasta = request.form['fasta']
 
     dir_tmp = utils.make_tmpdir(UPLOAD_DIR)
