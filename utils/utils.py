@@ -39,11 +39,21 @@ def process_files(files, dir_tmp):
         for file in files:
             fasta += '>' + file.filename + '\n'
             fasta += file.read().decode('utf-8')
-    
+        
+    # elif set(file_types) in [{'fq'}, {'fq.gz'}, {'fastq'}, {'fastq.gz'}]:
+    #     if input file is SE:
+    #         return[2, f_fq_SE]
+    #     elif input files are PE:
+    #         return [3, f_fq_PE1, f_fq_PE2]
+
     if fasta != "":
-        return [1, fasta]
+        f_fa = dir_tmp + '/' + app.config['INPUT_FASTA']
+        with open(f_fa, 'w') as f:
+            f.write(fasta)
+        return [1, f_fa]
     else:
         return [0, fasta]
+
 
 def process_zip(file, dir_tmp):
     # if 'uploadFile' not in file:
