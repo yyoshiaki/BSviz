@@ -21,7 +21,7 @@ def make_tmpdir(UPLOAD_DIR):
     return dir_tmp
 
 
-def process_files(files, dir_tmp):
+def process_files(files, dir_tmp, app):
     file_types = [x.filename.split('.')[-1] for x in files]
     print(file_types)
 
@@ -38,7 +38,8 @@ def process_files(files, dir_tmp):
     elif set(file_types) == {'seq'}:
         for file in files:
             fasta += '>' + file.filename + '\n'
-            fasta += file.read().decode('utf-8')
+            # removal of windows ^M (new line)
+            fasta += file.read().decode('utf-8').replace('\n', '').replace('\r', '')+'\n'
         
     # elif set(file_types) in [{'fq'}, {'fq.gz'}, {'fastq'}, {'fastq.gz'}]:
     #     if input file is SE:
@@ -46,11 +47,13 @@ def process_files(files, dir_tmp):
     #     elif input files are PE:
     #         return [3, f_fq_PE1, f_fq_PE2]
 
+    # print("context : \n", fasta)
     if fasta != "":
         f_fa = dir_tmp + '/' + app.config['INPUT_FASTA']
+        # print(f_fa)
         with open(f_fa, 'w') as f:
             f.write(fasta)
-        return [1, f_fa]
+        return [1, fasta]
     else:
         return [0, fasta]
 
@@ -95,6 +98,7 @@ def trim_fasta(fasta, res1, res2):
         if i%2 == 0:
             trimmed_fasta.append(x)
         else:
+            print(x, res1, res2)
             trimmed = trim(x, res1, res2)
             if trimmed == "":
                 trimmed_fasta.pop()

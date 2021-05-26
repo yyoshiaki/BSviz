@@ -57,13 +57,14 @@ def output():
     if fasta == "":
         files = request.files.getlist('uploadFile')
         print(files)
-        result = utils.process_files(files, dir_tmp)
-        if result[0] == 0:
+        result = utils.process_files(files, dir_tmp, app)
+        if result[0] == 1:
             fasta = result[1]
-        else:
-            fasta = result[1]
+        # else:
+            # fasta = result[1]
+            # render_template('error.html', error='invalid input for restriction enzyme.')
     
-    print(fasta)
+    # print(fasta)
 
     if (enz1 != "") & (enz2 != ""):
         fasta = utils.trim_fasta(fasta, enz1, enz2)
