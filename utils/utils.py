@@ -37,9 +37,11 @@ def process_files(files, dir_tmp, app):
             fasta += file.read().decode('utf-8')
     elif set(file_types) == {'seq'}:
         for file in files:
-            fasta += '>' + file.filename + '\n'
-            # removal of windows ^M (new line)
-            fasta += file.read().decode('utf-8').replace('\n', '').replace('\r', '')+'\n'
+            txt = file.read().decode('utf-8')
+            if txt.replace('N', '') != "":
+                fasta += '>' + file.filename + '\n'
+                # removal of windows ^M (new line)
+                fasta += txt.replace('\n', '').replace('\r', '')+'\n'
         
     # elif set(file_types) in [{'fq'}, {'fq.gz'}, {'fastq'}, {'fastq.gz'}]:
     #     if input file is SE:
@@ -204,6 +206,12 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     df_bismark = pd.read_csv(f_bismark, sep='\t', skiprows=[0], header=None)
     df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
 
+    list_chr = ['chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6', 'chr7', 'chr8', 'chr9',
+    'chr10', 'chr11', 'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19',
+    'chr20', 'chr21', 'chr22', 'chrX', 'chrY']
+
+    df_bismark = df_bismark[df_bismark['chr'].isin(list_chr)]
+
     gene = query_gene(df_bismark, bt_gff3)
 
     df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
@@ -216,10 +224,12 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     df_bismark = df_bismark.loc[:,df_bismark.isna().sum() < (df_bismark.shape[0]) * threshold_rate_undetected]
 
     # sort reads by methylation
-    sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=False).index
+    sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=True).index
     df_bismark = df_bismark.loc[sorted_ind]
 
-    df=df_bismark.melt(value_name='methylation')
+    df_bismark.to_csv(dir_tmp+'/'+'bismark.matrix.csv')
+
+    df = df_bismark.melt(value_name='methylation')
     list_index=list(sorted_ind)
     reads_num = list_index*(df_bismark.shape[1])
     df["read"]=reads_num

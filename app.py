@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import pathlib
 
@@ -8,6 +9,10 @@ import matplotlib.pyplot as plt
 from utils import utils
 
 from pybedtools import BedTool
+
+"""
+python app.py [port]
+"""
 
 app = Flask(__name__)
 
@@ -35,6 +40,11 @@ path_gff3_mouse = pathlib.Path(app.config['GFF3_MOUSE']) # .resolve()
 
 bt_genes_human = BedTool(path_gff3_human)
 bt_genes_mouse = BedTool(path_gff3_mouse)
+
+if len(sys.argv) == 2:
+    port = sys.argv[1]
+else:
+    port = 5005
 
 
 plt.rcParams["font.size"] = app.config['PLOT_FONT_SIZE']
@@ -65,6 +75,9 @@ def output():
             # render_template('error.html', error='invalid input for restriction enzyme.')
     
     # print(fasta)
+    f_fa = dir_tmp + '/' + app.config['INPUT_RAW_FASTA']
+    with open(f_fa, 'w') as f:
+        f.write(fasta)
 
     if (enz1 != "") & (enz2 != ""):
         fasta = utils.trim_fasta(fasta, enz1, enz2)
@@ -112,4 +125,4 @@ def test():
     return render_template("test.html", figs=figs)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5020, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)

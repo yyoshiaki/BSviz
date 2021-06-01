@@ -27,7 +27,7 @@ conda activate TregBSPCR_webapp
 ## Launch 
 
 ```
-python app.py
+python app.py 5000
 ```
 
 Access `http://127.0.0.1:5000/`
@@ -70,6 +70,13 @@ mkdir -p ~/reference/bismark/Gencode_M25/fasta
 cd ~/reference/bismark/Gencode_M25/fasta
 wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/GRCm38.p6.genome.fa.gz
 bismark_genome_preparation --parallel 40 ~/reference/bismark/Gencode_M25/fasta
+```
+
+## download reference
+
+```
+wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_34/gencode.v34.annotation.gff3.gz
+wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/gencode.vM25.annotation.gff3.gz
 ```
 
 ## Developpers
