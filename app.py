@@ -1,5 +1,4 @@
 import os
-import sys
 import shutil
 import pathlib
 
@@ -41,11 +40,6 @@ path_gff3_mouse = pathlib.Path(app.config['GFF3_MOUSE']) # .resolve()
 bt_genes_human = BedTool(path_gff3_human)
 bt_genes_mouse = BedTool(path_gff3_mouse)
 
-if len(sys.argv) == 2:
-    port = sys.argv[1]
-else:
-    port = 5005
-
 
 plt.rcParams["font.size"] = app.config['PLOT_FONT_SIZE']
 
@@ -59,8 +53,8 @@ def output():
     enz1 = request.form['enz1'].upper()
     enz2 = request.form['enz2'].upper()
     fasta = request.form['fasta']
-    gender = request.form['gender'] # Male, Female, Unknown
-    classification_dataset = request.form['classification'] # unselected, tregtconv, moss, no 
+    # gender = request.form['gender'] # Male, Female, Unknown
+    # classification_dataset = request.form['classification'] # unselected, tregtconv, moss, no 
 
     dir_tmp = utils.make_tmpdir(UPLOAD_DIR)
 
@@ -112,7 +106,7 @@ def output():
 
     # shutil.rmtree(dir_tmp)
 
-    return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result', classification_dataset=classification_dataset, gender=gender)
+    return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result') #, classification_dataset=classification_dataset, gender=gender)
 
 @app.route('/about')
 def about():
@@ -125,4 +119,4 @@ def test():
     return render_template("test.html", figs=figs)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=5020, debug=True)

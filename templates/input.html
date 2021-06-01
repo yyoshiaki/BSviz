@@ -24,7 +24,7 @@
 
         <br>
 
-        <label class="form-radio form-inline">
+        <!-- <label class="form-radio form-inline">
         <input type="radio" name="gender" checked="" value="Male"><i class="form-icon"></i> Male
         </label>
         <label class="form-radio form-inline">
@@ -32,18 +32,18 @@
         </label>
         <label class="form-radio form-inline">
         <input type="radio" name="gender" value="Unknown"><i class="form-icon"></i> Unknown
-        </label>
+        </label> -->
 
         <div class="column col-4 col-xs-12">
-        <select class="form-select" name="classification">
+        <!-- <select class="form-select" name="classification">
           <option value="unselected">Choose classification dataset</option>
           <option value="tregtconv">Treg-Tconv</option>
           <option value="moss">25 tissues (Moss et al, only for human)</option>
           <option value="no">no classification</option>
-        </select>
+        </select> -->
         
         <label class="form-label" for="enz1">Restrection enzyme 1</label>
-        <input class="form-input" type="text" id="enz1" name="enz1" placeholder="Restrection enzyme 1 (ex. CTCGAG)">
+        <input class="form-input" type="text" id="enz1" name="enz1" placeholder="Restrection enzyme 1 (ex. GGATCC)">
 
         <label class="form-label" for="enz2">Restrection enzyme 2</label>
         <input class="form-input" type="text" id="enz2" name="enz2" placeholder="Restrection enzyme 2 (ex. CTCGAG)">
@@ -73,13 +73,13 @@
         $('#enz2').val("");
         $('#fasta').val("");  
         $('#uploadFile').val("");
-        $('input[name=gender]').val(["Male"]);
-        $('select[name=classification]').val(["unselected"]);
+        // $('input[name=gender]').val(["Male"]);
+        // $('select[name=classification]').val(["unselected"]);
     }); 
     $("#setExample").click(function(event) { 
         $('input[name=species]').val(["Human"]);
-        $('input[name=gender]').val(["Male"]);
-        $('select[name=classification]').val(["tregtconv"]);
+        // $('input[name=gender]').val(["Male"]);
+        // $('select[name=classification]').val(["tregtconv"]);
         $('#enz1').val("GGATCC"); 
         $('#enz2').val("CTCGAG");
         $('#fasta').val('>Goto_2_G02_20.seq\n'
