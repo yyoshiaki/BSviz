@@ -6,13 +6,18 @@ import shutil
 import zipfile
 import subprocess
 
-from flask import Flask, render_template, request, make_response, jsonify
+from flask import Flask, render_template, request, make_response, jsonify, send_file
 import werkzeug
 import pandas as pd
 import matplotlib.pyplot as plt
 from skbio import DNA
 from skbio.alignment import local_pairwise_align_ssw
 from pybedtools import BedTool
+
+import matplotlib as mpl
+mpl.rcParams['figure.facecolor'] = (1,1,1,1)
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
 
 
 def make_tmpdir(UPLOAD_DIR):
@@ -202,7 +207,7 @@ def run_bismark(p, dir_tmp, f_fa, species, f_bismark_index):
     return dir_tmp + '/CpG_context_input.fasta_bismark_bt2.txt.gz'
 
 
-def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
+def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
     df_bismark = pd.read_csv(f_bismark, sep='\t', skiprows=[0], header=None)
     df_bismark.columns=['read', 'strand', 'chr', 'pos', 'meth']
 
@@ -265,14 +270,14 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, f_out, bt_gff3):
     ax.set_xlabel('position')
     ax.set_ylim(-0.5,df_bismark.shape[0])
     ax.set_title(gene)
-    
 
     # buf = BytesIO()
     # fig.savefig(buf, format="png", bbox_inches='tight', dpi=350)
     # data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    fig.savefig(dir_tmp+'/'+f_out, format="png", bbox_inches='tight', dpi=350)
+    fig.savefig(dir_tmp+'/output.png', format="png", bbox_inches='tight', dpi=350)
+    fig.savefig(dir_tmp+'/output.pdf', format="pdf", bbox_inches='tight', dpi=350)
     # data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return dir_tmp+'/'+f_out
+    # return dir_tmp+'/'+ id_img
 
 
 def query_gene(df_bismark, bt_gff3):

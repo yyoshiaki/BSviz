@@ -2,7 +2,7 @@ import os
 import shutil
 import pathlib
 
-from flask import Flask, render_template, request, make_response, jsonify
+from flask import Flask, render_template, request, make_response, jsonify, send_file
 import matplotlib.pyplot as plt
 
 from utils import utils
@@ -97,20 +97,43 @@ def output():
         f.write(fasta)
     f_bismark = utils.run_bismark(p, dir_tmp, f_fa, species, f_bismark_index)
 
-    fig = utils.plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, 'output.png', bt_gff3)
+    fig = utils.plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3)
     figs = []
     figs.append('/'+dir_tmp+'/output.png')
+
+    jobid = [x for x in dir_tmp.split('/') if 'job_' in x][0]
 
     # import time
     # time.sleep(5)
 
     # shutil.rmtree(dir_tmp)
 
-    return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, figs=figs, title='Result') #, classification_dataset=classification_dataset, gender=gender)
+    return render_template('output.html', species=species, enz1=enz1, enz2=enz2, fasta=fasta, 
+    figs=figs, title='Result', jobid=jobid) #, classification_dataset=classification_dataset, gender=gender)
+
+
+@app.route('/download_csv/<string:jobid>', methods=['GET'])
+def download_csv(jobid):
+    # jobid = "job_20210601_182759"
+    downloadFile = 'static/tmp/{}/bismark.matrix.csv'.format(jobid)
+    downloadFileName = 'bismark.matrix.{}.csv'.format(jobid)
+    return send_file(downloadFile, as_attachment = True, \
+        attachment_filename = downloadFileName)
+
+
+@app.route('/download_pdf/<string:jobid>', methods=['GET'])
+def download_pdf(jobid):
+    # jobid = "job_20210601_182759"
+    downloadFile = 'static/tmp/{}/output.pdf'.format(jobid)
+    downloadFileName = 'methylation.{}.pdf'.format(jobid)
+    return send_file(downloadFile, as_attachment = True, \
+        attachment_filename = downloadFileName)
+
 
 @app.route('/about')
 def about():
     return render_template("about.html")
+
 
 
 @app.route('/test')
