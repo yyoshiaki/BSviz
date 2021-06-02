@@ -1,6 +1,9 @@
 name: BSviz
 dependencies:
 - python=3.7
-- scikit-bio=0.5.6
 - bismark=0.22.3
 - pybedtools==0.8.1
+- pip:
+ - numpy
+ - sckit-bio
+ - flask
