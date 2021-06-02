@@ -1,27 +1,15 @@
-# TregBSPCR_webapp
+# BSviz
 
 ## Setup
 
-### Linux
-
 ```
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
+conda config --add channels https://conda.anaconda.org/biocore
 
-conda create --name TregBSPCR_webapp --file environment.linux.yaml
-conda activate TregBSPCR_webapp
-```
-
-### Mac OS
-
-```
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
-
-conda create --name TregBSPCR_webapp --file environment.macos.yaml
-conda activate TregBSPCR_webapp
+conda env create --file environment.yaml
+conda activate BSviz
 ```
  
 ## Launch 
@@ -37,8 +25,8 @@ Access `http://127.0.0.1:5000/`
 ### Linux
 
 ```
-conda create -n TregBSPCR_webapp python=3.7 anaconda
-conda activate TregBSPCR_webapp
+conda create -n BSviz python=3.7 anaconda
+conda activate BSviz
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark pybedtools
 # pip install pybedtools
@@ -49,8 +37,8 @@ conda list --export | grep -v "pyqt" > environment.linux.yaml
 ### Mac OS
 
 ```
-conda create -n TregBSPCR_webapp python=3.7 anaconda
-conda activate TregBSPCR_webapp
+conda create -n BSviz python=3.7 anaconda
+conda activate BSviz
 conda install -c https://conda.anaconda.org/biocore scikit-bio
 conda install -c bioconda bismark
 pip install pybedtools
