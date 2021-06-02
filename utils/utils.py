@@ -9,6 +9,7 @@ import subprocess
 from flask import Flask, render_template, request, make_response, jsonify, send_file
 import werkzeug
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from skbio import DNA
 from skbio.alignment import local_pairwise_align_ssw
@@ -42,11 +43,12 @@ def process_files(files, dir_tmp, app):
             fasta += file.read().decode('utf-8')
     elif set(file_types) == {'seq'}:
         for file in files:
-            txt = file.read().decode('utf-8')
-            if txt.replace('N', '') != "":
+            seq = file.read().decode('utf-8')
+            seq = seq.replace('\n', '').replace('\r', '')
+            if validate_seq(seq):
                 fasta += '>' + file.filename + '\n'
                 # removal of windows ^M (new line)
-                fasta += txt.replace('\n', '').replace('\r', '')+'\n'
+                fasta += seq+'\n'
         
     # elif set(file_types) in [{'fq'}, {'fq.gz'}, {'fastq'}, {'fastq.gz'}]:
     #     if input file is SE:
@@ -64,6 +66,13 @@ def process_files(files, dir_tmp, app):
     else:
         return [0, fasta]
 
+
+def validate_seq(seq):
+    seq = seq.replace('N', '')
+    if len(seq) < 20:
+        return False
+    else:
+        return True
 
 def process_zip(file, dir_tmp):
     # if 'uploadFile' not in file:
@@ -233,6 +242,7 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
     df_bismark = df_bismark.loc[sorted_ind]
 
     df_bismark.to_csv(dir_tmp+'/'+'bismark.matrix.csv')
+    create_txt(dir_tmp)
 
     df = df_bismark.melt(value_name='methylation')
     list_index=list(sorted_ind)
@@ -278,6 +288,22 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
     fig.savefig(dir_tmp+'/output.pdf', format="pdf", bbox_inches='tight', dpi=350)
     # data = base64.b64encode(buf.getbuffer()).decode("ascii")
     # return dir_tmp+'/'+ id_img
+
+
+def create_txt(dir_tmp):
+    df_bismark = pd.read_csv(dir_tmp+'/'+'bismark.matrix.csv', index_col=0)
+
+    with open(dir_tmp+'/bismark.matrix.txt', 'w') as f:
+        f.write('# read\t' + ','.join(df_bismark.columns)+'\n')
+
+        for s,x in zip(df_bismark.index, np.array(df_bismark)):
+            txt = s+"\t"
+            for v in x:
+                if v == 0:
+                    txt += "○"
+                elif v == 1:
+                    txt += "●"
+            f.write(txt+'\n')
 
 
 def query_gene(df_bismark, bt_gff3):

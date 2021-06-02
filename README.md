@@ -27,7 +27,7 @@ conda activate TregBSPCR_webapp
 ## Launch 
 
 ```
-python app.py --port 5000
+flask run -p 5000 -h 0.0.0.0
 ```
 
 Access `http://127.0.0.1:5000/`

@@ -120,6 +120,14 @@ def download_csv(jobid):
     return send_file(downloadFile, as_attachment = True, \
         attachment_filename = downloadFileName)
 
+@app.route('/download_txt/<string:jobid>', methods=['GET'])
+def download_txt(jobid):
+    # jobid = "job_20210601_182759"
+    downloadFile = 'static/tmp/{}/bismark.matrix.txt'.format(jobid)
+    downloadFileName = 'bismark.matrix.{}.txt'.format(jobid)
+    return send_file(downloadFile, as_attachment = True, \
+        attachment_filename = downloadFileName)
+
 
 @app.route('/download_pdf/<string:jobid>', methods=['GET'])
 def download_pdf(jobid):
