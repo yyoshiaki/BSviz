@@ -6,8 +6,10 @@
   <h2>Classification dataset : {{classification_dataset}}</h2> -->
   <h2>Enzyme1 : {{enz1}} , Enzyme2 : {{enz2}}</h2>
   <textarea rows="10" cols="100" wrap="soft">{{fasta}}</textarea>
-  <div class="columns">
-    <div class="column col-8"><img src="{{figs[0]}}" width="100%"/></div>
+    <div class="columns col-oneline">
+      <img src="{{figs[0]}}" width="40%" height="40%"/>
+      <img src="{{url_for('static', filename='img/legend.png')}}" width="10%" height="10%"/>
+    </div>
   </div>
   <button type="submit" class="btn" onclick="location.href='./download_csv/{{jobid}}'">download csv</button>
   <button type="submit" class="btn" onclick="location.href='./download_txt/{{jobid}}'">download txt</button>

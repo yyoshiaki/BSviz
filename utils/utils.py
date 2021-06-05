@@ -244,41 +244,40 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
     df_bismark.to_csv(dir_tmp+'/'+'bismark.matrix.csv')
     create_txt(dir_tmp)
 
-    df = df_bismark.melt(value_name='methylation')
-    list_index=list(sorted_ind)
-    reads_num = list_index*(df_bismark.shape[1])
-    df["read"]=reads_num
+    df_bismark = df_bismark.reset_index().melt(value_name='meth', id_vars='read')
+    df_bismark.columns = ['read', 'pos', 'meth']
+    df_bismark['x'] = [list(df_bismark['pos'].unique()).index(x) for x in df_bismark['pos']]
+    df_bismark['y'] = [list(df_bismark['read'].unique()).index(x) for x in df_bismark['read']]
 
-    df_0 = df[df.methylation==0.0]
-    df_1 = df[df.methylation==1.0]
-    df_N = df[df.isnull().any(axis=1)]
+    # fig, ax = plt.subplots(figsize=(len(df_bismark['pos'].unique()), len(df_bismark['read'].unique())))
+    fig, ax = plt.subplots()
 
-    data_2 = {
-        "pos":list(df["pos"]), 
-        "read":list(reversed(reads_num)),
-        "methylation":[0]*len(df.index)
-    }
+    for pos,row in df_bismark.iterrows():
+        if row['meth'] == 1:
+            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.48, color='black')
+            ax.add_artist(circle)
+        elif row['meth'] == 0:
+            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.48, color='black', fill=False)
+            ax.add_artist(circle)
+        else:
+            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.1, color='blue')
+            ax.add_artist(circle)
 
-    df_mat_2 = pd.DataFrame(data_2)
-
-    fig, ax = plt.subplots(figsize=(df_bismark.shape[1]/2, df_bismark.shape[0]/2 + .2))
-    plt.xticks(rotation=90)
-
-    ax.scatter(x="pos", y="read", data=df_mat_2, marker="", label=None)
-    ax.scatter(x="pos", y="read", data=df_1, s=500, linewidths='2', 
-            c='#000000', edgecolors='black', label='Methylated')
-    ax.scatter(x="pos", y="read", data=df_0, s=500, linewidths='2', 
-            c='#ffffff', edgecolors='black', label='Unmethylated')
-    ax.scatter(x="pos", y="read", data=df_N, c='#0000ff', marker=".", label='Undetected')
-
-    ax.legend(bbox_to_anchor=(1.1, 0.5), frameon=False, labelspacing=2)
+    ax.set_aspect(1)
+    ax.legend(bbox_to_anchor=(1.1, 0.5), frameon=False, labelspacing=2, loc='upper left')
     ax.spines["right"].set_color("none") 
     ax.spines["left"].set_color("none")  
     ax.spines["top"].set_color("none")   
     ax.spines["bottom"].set_color("none")
 
     ax.set_xlabel('position')
-    ax.set_ylim(-0.5,df_bismark.shape[0])
+    plt.xticks(rotation=90)
+    ax.set_xticks(np.arange(df_bismark['x'].max()+1)+0.5)
+    ax.set_xticklabels(df_bismark['pos'].unique())
+    ax.set_yticks(np.arange(df_bismark['y'].max()+1)+0.5)
+    ax.set_yticklabels(df_bismark['read'].unique())
+    ax.set_xlim(0,df_bismark['x'].max()+1)
+    ax.set_ylim(0,df_bismark['y'].max()+1)
     ax.set_title(gene)
 
     # buf = BytesIO()
