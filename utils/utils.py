@@ -238,7 +238,7 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
     df_bismark = df_bismark.loc[:,df_bismark.isna().sum() < (df_bismark.shape[0]) * threshold_rate_undetected]
 
     # sort reads by methylation
-    sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=True).index
+    sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=False).index
     df_bismark = df_bismark.loc[sorted_ind]
 
     df_bismark.to_csv(dir_tmp+'/'+'bismark.matrix.csv')
@@ -254,10 +254,10 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
 
     for pos,row in df_bismark.iterrows():
         if row['meth'] == 1:
-            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.48, color='black')
+            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.47, color='black')
             ax.add_artist(circle)
         elif row['meth'] == 0:
-            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.48, color='black', fill=False)
+            circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.47, color='black', fill=False)
             ax.add_artist(circle)
         else:
             circle = plt.Circle((row['x']+0.5, row['y']+0.5), 0.1, color='blue')
