@@ -229,13 +229,13 @@ def plot_bismark(dir_tmp, f_bismark, threshold_rate_undetected, bt_gff3):
     gene = query_gene(df_bismark, bt_gff3)
 
     df_bismark = df_bismark.pivot(index='read', columns='pos', values='meth')
-    df_bismark.columns=df_bismark.columns.astype(str)
+    df_bismark.columns = df_bismark.columns.astype(str)
 
     # methylated CpG : 1, unmethylated CpG : 0
     df_bismark = df_bismark.replace('Z', 1).replace('z', 0)
 
     # remove positions with many undetected reads.
-    df_bismark = df_bismark.loc[:,df_bismark.isna().sum() < (df_bismark.shape[0]) * threshold_rate_undetected]
+    df_bismark = df_bismark[df_bismark.isna().sum(axis=1) < df_bismark.shape[1] * threshold_rate_undetected]
 
     # sort reads by methylation
     sorted_ind = df_bismark.sum(axis=1).sort_values(ascending=False).index
